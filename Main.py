@@ -69,7 +69,6 @@ def initialize(name, file):
     with open(file, 'w') as file:
         json.dump(done, file, indent=4)
 
-
 def npcSorter():
     for npc in os.listdir("./"):
         print(npc)
@@ -121,6 +120,16 @@ def createNPC():
     input("Continue?")
     clear()
 
+def viewNPC(name):
+    clear()
+    npcFile = f"{name.lower().strip().replace(" ","_")}.json"
+    with open(npcFile,'r') as file:
+        npcFile = json.load(file)
+    for x in npcFile:
+        print(f"{x}:{npcFile[x]}")
+    input("Continue?")
+
+
 while mainLoop != "5":
     mainLoop = input("""What would you like to do?
 1) Create
@@ -135,7 +144,9 @@ while mainLoop != "5":
     elif mainLoop == "2":
         npcSorter()
     elif mainLoop == "3":
-        print("View")
+        clear()
+        name = input("What NPC are you wanting to view?\n")
+        viewNPC(name)
     elif mainLoop == "4":
         print("Edit")
     elif mainLoop == "5":
