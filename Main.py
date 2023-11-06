@@ -124,7 +124,7 @@ def createNPC():
 def viewNPC():
     while True:
         clear()
-        name = input("What NPC are you wanting to view? Type \"/menu\" to return to the main menu.\n")
+        name = input("What NPC do you want to view? Type \"/menu\" to return to the main menu.\n")
         npcFile = f"{name.lower().strip().replace(' ','_')}.json"
         if npcFile in os.listdir("./"):
             with open(npcFile,'r') as file:
@@ -136,15 +136,59 @@ def viewNPC():
         elif name == "/menu":
             break
         else:
-            retry = input(f'Could not find {name}, try again? y/n').lower().strip()
-            if retry == "y":
-                continue
-            else:
-                break
+            input(f'Could not find {name} in the NPC list, try again.')
 
+def editNPC():
+    while True:    
+        clear()
+        name = input("What NPC do you want to edit? Type \"/menu\" to return to the main menu.\n")
+        npcFile = f"{name.lower().strip().replace(' ','_')}.json"
+        if npcFile in os.listdir("./"):
+            with open(npcFile, 'r') as file:
+                descriptor = json.load(file)
+            for x in descriptor:
+                print(f"{x.capitalize()}: {descriptor[x]}")
 
+            outFile = descriptor
+            while True:
+                clear()
+                #print the NPC file.
+                for x in descriptor:
+                    print(f"{x.capitalize()}: {descriptor[x]}")
+                
+                #get user input
+                edit = input(f'What part of {name} would you like to edit?\n').lower().strip()
+                #nts is in all caps on the file so I have to do this for it to match with the sanitizing I did.
+                if edit == "nts":
+                    edit = "NTS"
+                
+                #if the input is actually there, let them edit the file.
+                if edit in descriptor:
+                    #Get the input for what they want the new description to be.
+                    description = input(f'{edit.capitalize()}: {outFile[edit]}\n New description for {edit}: ')
+                    #Temporary edit of the outFile with their change.
+                    outFile[edit] = description
+                    #Make sure they're done before closing so that user doesn't have to come all the way back around to edit again.
+                    stillEditing = input('Would you like to edit another description? Y to continue, any other button to save and close.').lower().strip()
+                    if stillEditing == "y":
+                        continue
+                    else:
+                        with open(npcFile, 'w') as file:
+                            json.dump(outFile, file, indent=4)
+                        break
+                #If the input isn't there, make them retry.
+                else:
+                    input(f'{edit.capitalize()} is not one of the descriptors.')
+
+        elif name == "/menu":
+            break
+        else:
+            input(f'Could not find {name} in the NPC list, try again.')
+
+#Main loop that runs the program, once this ends the entire program ends.
 while mainLoop != "5":
     clear()
+    #Main Menu text
     mainLoop = input("""What would you like to do?
 1) Create
 2) Sort
@@ -154,13 +198,17 @@ while mainLoop != "5":
 """)
     clear()
     if mainLoop == "1":
+        #Basic idea finished
         createNPC()
     elif mainLoop == "2":
+        #Can technically show you the current json files lmao.
         npcSorter()
     elif mainLoop == "3":
+        #Basically finished
         viewNPC()
     elif mainLoop == "4":
-        print("Edit")
+        #Pretty much works!
+        editNPC()
     elif mainLoop == "5":
         break
     else:
