@@ -51,7 +51,7 @@ def initialize(name, file):
         #print what has already been added.
         if done != {"name":name}:
             for x in done:
-                print(f"{x}:{done[x]}")
+                print(f'{x.capitalize()}:{done[x]}')
 
         #Get user input for what the description is.
         userDescription = input(f"{descriptor.capitalize()}: {descriptions[descriptor]}\n")
@@ -72,7 +72,8 @@ def initialize(name, file):
 def npcSorter():
     for npc in os.listdir("./"):
         print(npc)
-    print("")
+    print(npc)
+    input("Continue?")
 
 #Initialize the NPC file off of a template and get a first pass at filling the specifics in.
 def createNPC():
@@ -120,17 +121,28 @@ def createNPC():
     input("Continue?")
     clear()
 
-def viewNPC(name):
-    clear()
-    npcFile = f"{name.lower().strip().replace(" ","_")}.json"
-    with open(npcFile,'r') as file:
-        npcFile = json.load(file)
-    for x in npcFile:
-        print(f"{x}:{npcFile[x]}")
-    input("Continue?")
+def viewNPC():
+    while True:
+        clear()
+        name = input("What NPC are you wanting to view?\n")
+        npcFile = f"{name.lower().strip().replace(' ','_')}.json"
+        if npcFile in os.listdir("./"):
+            with open(npcFile,'r') as file:
+                npcFile = json.load(file)
+            for x in npcFile:
+                print(f"{x.capitalize()}: {npcFile[x]}")
+            input("Continue?")
+            break
+        else:
+            retry = input(f'Could not find {name}, try again? y/n').lower().strip()
+            if retry == "y":
+                continue
+            else:
+                break
 
 
 while mainLoop != "5":
+    clear()
     mainLoop = input("""What would you like to do?
 1) Create
 2) Sort
@@ -144,9 +156,7 @@ while mainLoop != "5":
     elif mainLoop == "2":
         npcSorter()
     elif mainLoop == "3":
-        clear()
-        name = input("What NPC are you wanting to view?\n")
-        viewNPC(name)
+        viewNPC()
     elif mainLoop == "4":
         print("Edit")
     elif mainLoop == "5":
