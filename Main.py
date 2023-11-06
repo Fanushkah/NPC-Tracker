@@ -54,7 +54,7 @@ def initialize(name, file):
                 print(f"{x}:{done[x]}")
 
         #Get user input for what the description is.
-        userDescription = input(f"{descriptions[descriptor]}\n")
+        userDescription = input(f"{descriptor.capitalize()}: {descriptions[descriptor]}\n")
         npcFile[descriptor] = userDescription
 
         #Update Done so its ready on the next pass.
@@ -64,7 +64,7 @@ def initialize(name, file):
     #print Done again.
     for x in done:
         print (f"{x}:{done[x]}")
-        
+
     #Push all of the updates to the file.
     with open(file, 'w') as file:
         json.dump(done, file, indent=4)
@@ -119,22 +119,26 @@ def createNPC():
     #Initialize the rest of the data. Make this abstract as fuck so that it takes up less space. If you hard code this you can go fuck yourself.
     initialize(npcName, npcFile)
     input("Continue?")
+    clear()
 
-while mainLoop != "4":
-    mainLoop = input("""What would you like to do? ()
-1) Sort
-2) Create
-3) Edit
-4) Exit
+while mainLoop != "5":
+    mainLoop = input("""What would you like to do?
+1) Create
+2) Sort
+3) View
+4) Edit
+5) Exit
 """)
     clear()
     if mainLoop == "1":
-        npcSorter()
-    elif mainLoop == "2":
         createNPC()
+    elif mainLoop == "2":
+        npcSorter()
     elif mainLoop == "3":
-        print("edit")
+        print("View")
     elif mainLoop == "4":
+        print("Edit")
+    elif mainLoop == "5":
         break
     else:
         print(f"I don't recognize {mainLoop} as an option. Try again.")
