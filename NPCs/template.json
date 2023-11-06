@@ -1,16 +1,16 @@
 {
-    "tags": "",
     "name": "",
+    "tags": "",
     "age" : "",
     "species": "",
-    "country": "",
     "town": "",
+    "country":"",
     "description": "",
+    "voice":"",
     "quirks": "",
     "wants": "",
     "relationships": "",
     "beliefs": "",
-    "voice": "",
     "NTS": ""
 
 }
