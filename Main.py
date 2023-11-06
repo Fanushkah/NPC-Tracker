@@ -124,14 +124,16 @@ def createNPC():
 def viewNPC():
     while True:
         clear()
-        name = input("What NPC are you wanting to view?\n")
+        name = input("What NPC are you wanting to view? Type \"/menu\" to return to the main menu.\n")
         npcFile = f"{name.lower().strip().replace(' ','_')}.json"
         if npcFile in os.listdir("./"):
             with open(npcFile,'r') as file:
                 npcFile = json.load(file)
             for x in npcFile:
                 print(f"{x.capitalize()}: {npcFile[x]}")
-            input("Continue?")
+            input("Press any button to continue.")
+            continue
+        elif name == "/menu":
             break
         else:
             retry = input(f'Could not find {name}, try again? y/n').lower().strip()
