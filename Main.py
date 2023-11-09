@@ -139,8 +139,6 @@ def createNPC():
         descriptor = json.load(file)
     descriptor["name"] = npcName
     dataPusher(npcFile, descriptor)
-    #with open(npcFile, 'w') as file:
-    #    json.dump(descriptor, file, indent=4)
     #Initialize the rest of the data. Make this abstract as fuck so that it takes up less space. If you hard code this you can go fuck yourself.
     initialize(npcName, npcFile)
     input("Continue?")
@@ -197,8 +195,8 @@ def editNPC():
                     if stillEditing == "y":
                         continue
                     else:
-                        with open(npcFile, 'w') as file:
-                            json.dump(outFile, file, indent=4)
+                        #Save the data.
+                        dataPusher(npcFile, outFile)
                         break
                 #If the input isn't there, make them retry.
                 else:
