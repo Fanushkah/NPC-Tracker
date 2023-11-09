@@ -1,4 +1,10 @@
-import os, json, shutil
+import os, json, shutil, pyperclip as pc
+
+#TODO: Replace the Y/N at the end of editing with a "Select another descriptor or use /exit to save."
+#TODO: Let the user /exit at any point in the editing process. 
+#TODO: Maybe retool the edit function to take an argument for an NPC name so that the user can go to the edit menus directly from the viewing menu
+#TODO: Definitely make editing available from the viewing menu at the very least.
+#TODO: Let the user copy NPC data to the clipboard using pyperclip so they can use it elsewhere.
 
 #Initialize some info for later.
 mainLoop = None
@@ -14,6 +20,26 @@ def clear():
         os.system("cls")
     else:
         os.system('clear')
+
+#Gives the option of pulling the data from an NPC, returning None, or returning a /menu call.
+def dataPuller(name):
+    if name != "/menu":
+        npcFile = f"{name.lower().strip().replace(' ','_')}.json"
+        if npcFile in os.listdir("./"):
+            with open(npcFile, 'r') as file:
+                npcFile = json.load(file)
+            data = npcFile
+            return(data)
+        else:
+            data = None
+            return(data)
+    else:
+        return(name)
+
+def dataPusher(npcFilePath, data):
+    if npcFilePath in os.listdir("./"):
+        with open(npcFilePath, 'w') as file:
+            json.dump(data, file, indent=4)
 
 #function to go through every single option in a json file and save the responses so if I have to do it more than once I can just call it.
 def initialize(name, file):
@@ -65,14 +91,12 @@ def initialize(name, file):
     for x in done:
         print (f"{x}:{done[x]}")
 
-    #Push all of the updates to the file.
-    with open(file, 'w') as file:
-        json.dump(done, file, indent=4)
+    #Push all of the updates to the file using the dataPusher function
+    dataPusher(file,done)
 
 def npcSorter():
     for npc in os.listdir("./"):
         print(npc)
-    print(npc)
     input("Continue?")
 
 #Initialize the NPC file off of a template and get a first pass at filling the specifics in.
@@ -114,8 +138,9 @@ def createNPC():
     with open(npcFile,'r') as file:
         descriptor = json.load(file)
     descriptor["name"] = npcName
-    with open(npcFile, 'w') as file:
-        json.dump(descriptor, file, indent=4)
+    dataPusher(npcFile, descriptor)
+    #with open(npcFile, 'w') as file:
+    #    json.dump(descriptor, file, indent=4)
     #Initialize the rest of the data. Make this abstract as fuck so that it takes up less space. If you hard code this you can go fuck yourself.
     initialize(npcName, npcFile)
     input("Continue?")
@@ -125,12 +150,10 @@ def viewNPC():
     while True:
         clear()
         name = input("What NPC do you want to view? Type \"/menu\" to return to the main menu.\n")
-        npcFile = f"{name.lower().strip().replace(' ','_')}.json"
-        if npcFile in os.listdir("./"):
-            with open(npcFile,'r') as file:
-                npcFile = json.load(file)
-            for x in npcFile:
-                print(f"{x.capitalize()}: {npcFile[x]}")
+        data = dataPuller(name)
+        if data != None:
+            for x in data:
+                print(f"{x.capitalize()}: {data[x]}")
             input("Press any button to continue.")
             continue
         elif name == "/menu":
@@ -148,6 +171,7 @@ def editNPC():
                 descriptor = json.load(file)
             for x in descriptor:
                 print(f"{x.capitalize()}: {descriptor[x]}")
+
 
             outFile = descriptor
             while True:
