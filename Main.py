@@ -23,6 +23,7 @@ def clear():
 
 #Gives the option of pulling the data from an NPC, returning None, or returning a /menu call.
 def dataPuller(name):
+    name = name.lower()
     if name != "/menu":
         npcFile = f"{name.lower().strip().replace(' ','_')}.json"
         if npcFile in os.listdir("./"):
@@ -42,8 +43,8 @@ def dataPusher(npcFilePath, data):
             json.dump(data, file, indent=4)
 
 #function to go through every single option in a json file and save the responses so if I have to do it more than once I can just call it.
-def initialize(name, file):
-    print(f"{name}- {file}")
+def createNPC(name, file):
+    clear()
 
     with open(file,'r') as npc:
         npcFile = json.load(npc)
@@ -52,12 +53,10 @@ def initialize(name, file):
     #Iterate through each descriptor, ignoring the name.
     done = {"name": name}
     for descriptor in npcFile:
-        clear()
-
         #We already have a name, please don't edit it.
         if descriptor == "name":
             continue
-        
+
         #descriptions of each descriptor
         descriptions = {
             "tags":"These are used to group NPCs together outside of common descriptors like location. Then later you can search for all NPCs with the tag to quickly find these groups.",
@@ -77,46 +76,45 @@ def initialize(name, file):
         #print what has already been added.
         if done != {"name":name}:
             for x in done:
-                print(f'{x.capitalize()}:{done[x]}')
+                print(f'{x.capitalize()}: {done[x]}')
 
         #Get user input for what the description is.
-        userDescription = input(f"{descriptor.capitalize()}: {descriptions[descriptor]}\n")
+        userDescription = input(f"{descriptor.capitalize()}: {descriptions[descriptor]}\n{descriptor.capitalize()}: ")
         npcFile[descriptor] = userDescription
 
         #Update Done so its ready on the next pass.
         done[descriptor]= userDescription
+        clear()
     
     clear()
     #print Done again.
     for x in done:
-        print (f"{x}:{done[x]}")
+        print (f"{x.capitalize()}: {done[x]}")
 
     #Push all of the updates to the file using the dataPusher function
     dataPusher(file,done)
+    input(f"You've finished making {name}, they're beautiful. I pray for their souls that you don't have murderhobos.")
 
 def npcSorter():
     for npc in os.listdir("./"):
-        print(npc)
+        if npc != "template.json": 
+            print(npc[:-5])
     input("Continue?")
 
-#Initialize the NPC file off of a template and get a first pass at filling the specifics in.
-def createNPC():
+#Initialize the file based off of template.json, get the name of the NPC
+def initialize():
     #Copy the template to a new file so I can overwrite it.
     shutil.copy(templateNPC, tempNPC)
-    print("Let's build an NPC! ")
     
     while True:
-        clear()
-        #Get the NPC's name and initialize files
-        npcName = input("What is their name?\n")
+        #Get the NPC's name and sanitize it to make the new file name.
+        npcName = input("Let's build an NPC! What is their name?\n")
         fnpcName = npcName.lower().strip().replace(" ","_")
         npcFile = f"{fnpcName}.json"
     
         #If there isn't already a file with that name, make it.
         if npcFile not in os.listdir("./"):
-            clear()
             os.rename(tempNPC, npcFile)
-            print("File named!")
             break
 
         #If there is already a file with that name, give them the option to rename it or add a signifier onto it.
@@ -125,6 +123,7 @@ def createNPC():
             nameError = input(f"{npcName} is already in use.\nDo you want to:\n1)Rename the NPC.\n2)Add a moniker to the end and keep this name. ")
             #If they wanna rename just restart the while loop
             if nameError == "1":
+                clear()
                 continue
             #If the user wants a moniker, give it to them and break out of the while loop to continue.
             elif nameError == "2":
@@ -134,22 +133,15 @@ def createNPC():
                 os.rename(tempNPC, npcFile)
                 break
 
-    #Now initialize the data, starting with putting the name into the file.
-    with open(npcFile,'r') as file:
-        descriptor = json.load(file)
-    descriptor["name"] = npcName
-    dataPusher(npcFile, descriptor)
-    #Initialize the rest of the data. Make this abstract as fuck so that it takes up less space. If you hard code this you can go fuck yourself.
-    initialize(npcName, npcFile)
-    input("Continue?")
-    clear()
+    ##Initialize the rest of the data. Make this abstract as fuck so that it takes up less space. If you hard code this you can go fuck yourself.
+    createNPC(npcName, npcFile)
 
 def viewNPC():
     while True:
         clear()
         name = input("What NPC do you want to view? Type \"/menu\" to return to the main menu.\n")
         data = dataPuller(name)
-        if data != None:
+        if data != None and data != "/menu":
             for x in data:
                 print(f"{x.capitalize()}: {data[x]}")
             input("Press any button to continue.")
@@ -179,22 +171,34 @@ def editNPC():
                     print(f"{x.capitalize()}: {descriptor[x]}")
                 
                 #get user input
-                edit = input(f'What part of {name} would you like to edit?\n').lower().strip()
-                #nts is in all caps on the file so I have to do this for it to match with the sanitizing I did.
+                edit = input(f'What part of {name.capitalize()} would you like to edit?\n').lower().strip()
+
+                #nts is in all caps on the file so I have to do this for it to match with the sanitizing I did. I hate this.
                 if edit == "nts":
                     edit = "NTS"
                 
                 #if the input is actually there, let them edit the file.
-                if edit in descriptor:
+                while edit in descriptor:
+                    clear()
+
+                    for x in descriptor:
+                        print(f"{x.capitalize()}: {descriptor[x]}")
+
                     #Get the input for what they want the new description to be.
-                    description = input(f'{edit.capitalize()}: {outFile[edit]}\n New description for {edit}: ')
+                    description = input(f'New description for {edit}: ')
                     #Temporary edit of the outFile with their change.
                     outFile[edit] = description
+                    clear()
+                    for x in descriptor:
+                        print(f"{x.capitalize()}: {descriptor[x]}")
                     #Make sure they're done before closing so that user doesn't have to come all the way back around to edit again.
-                    stillEditing = input('Would you like to edit another description? Y to continue, any other button to save and close.').lower().strip()
-                    if stillEditing == "y":
-                        continue
-                    else:
+                    edit = input('Select another descriptor or use /exit to save. ').lower().strip()
+                    
+                    #Find a way to fix this ungodly mess. This shouldn't be necessary
+                    if edit =="nts":
+                        edit = "NTS"
+
+                    if edit == "/exit":
                         #Save the data.
                         dataPusher(npcFile, outFile)
                         break
@@ -221,7 +225,7 @@ while mainLoop != "5":
     clear()
     if mainLoop == "1":
         #Basic idea finished
-        createNPC()
+        initialize()
     elif mainLoop == "2":
         #Can technically show you the current json files lmao.
         npcSorter()
