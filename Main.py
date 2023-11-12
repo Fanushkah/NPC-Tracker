@@ -1,4 +1,5 @@
 import os, json, shutil, pyperclip as pc
+from colorama import Fore, Back
 
 #TODO: Replace the Y/N at the end of editing with a "Select another descriptor or use /exit to save."
 #TODO: Let the user /exit at any point in the editing process. 
@@ -25,7 +26,10 @@ def clear():
 def dataPuller(name):
     name = name.lower()
     if name != "/menu":
-        npcFile = f"{name.lower().strip().replace(' ','_')}.json"
+        if name[-5:] != ".json":
+            npcFile = f"{name.lower().strip().replace(' ','_')}.json"
+        else:
+            npcFile = name
         if npcFile in os.listdir("./"):
             with open(npcFile, 'r') as file:
                 npcFile = json.load(file)
@@ -95,11 +99,10 @@ def createNPC(name, file):
     dataPusher(file,done)
     input(f"You've finished making {name}, they're beautiful. I pray for their souls that you don't have murderhobos.")
 
-def npcSorter():
+def npcList():
     for npc in os.listdir("./"):
         if npc != "template.json": 
-            print(npc[:-5])
-    input("Continue?")
+            print(Fore.MAGENTA + npc[:-5].capitalize().replace("_"," "))
 
 #Initialize the file based off of template.json, get the name of the NPC
 def initialize():
@@ -136,106 +139,118 @@ def initialize():
     ##Initialize the rest of the data. Make this abstract as fuck so that it takes up less space. If you hard code this you can go fuck yourself.
     createNPC(npcName, npcFile)
 
-def viewNPC():
+def viewNPC(name):
     while True:
         clear()
-        name = input("What NPC do you want to view? Type \"/menu\" to return to the main menu.\n")
         data = dataPuller(name)
         if data != None and data != "/menu":
             for x in data:
-                print(f"{x.capitalize()}: {data[x]}")
-            input("Press any button to continue.")
-            continue
+                print(Fore.MAGENTA + f"{x.capitalize()}: {data[x]}")
+            choice = input(Fore.WHITE +"Edit or Press any button to continue.\n>").lower().strip()
+            if choice == "edit":
+                editNPC(name)
+                break
+            else:
+                break
         elif name == "/menu":
             break
         else:
-            input(f'Could not find {name} in the NPC list, try again.')
+            input(f'Could not find {name.capitalize()} in the NPC list, try again.')
+            break
 
-def editNPC():
-    while True:    
+def editNPC(name):    
+    npcFile = f"{name}.json"
+    descriptor = dataPuller(npcFile)
+
+    #Initialize the outFile so it can be used in the loop
+    outFile = descriptor
+    while True:
         clear()
-        name = input("What NPC do you want to edit? Type \"/menu\" to return to the main menu.\n")
-        npcFile = f"{name.lower().strip().replace(' ','_')}.json"
-        if npcFile in os.listdir("./"):
-            with open(npcFile, 'r') as file:
-                descriptor = json.load(file)
+        #print the NPC file.
+        for x in descriptor:
+            print(Fore.MAGENTA + f"{x.capitalize()}: {descriptor[x]}")
+                
+        #get user input
+        edit = input(Fore.WHITE + f'What part of {name.replace("_"," ").capitalize()} would you like to edit?\n>').lower().strip()
+
+        #nts is in all caps on the file so I have to do this for it to match with the sanitizing I did. I hate this.
+        if edit == "nts":
+            edit = "NTS"
+
+        #if the input is actually there, let them edit the file.
+        while edit in descriptor:
+            clear()
             for x in descriptor:
-                print(f"{x.capitalize()}: {descriptor[x]}")
+                print(Fore.MAGENTA + f"{x.capitalize()}: {descriptor[x]}")
 
+            #Get the input for what they want the new description to be.
+            description = input(Fore.WHITE + f'New description for {edit}: ')
+            #Temporary edit of the outFile with their change.
+            outFile[edit] = description
+            clear()
+            #Print the NPC again with new changes
+            for x in descriptor:
+                print(Fore.MAGENTA + f"{x.capitalize()}: {descriptor[x]}")
+            #Make sure they're done before closing so that user doesn't have to come all the way back around to edit again.
+            edit = input(Fore.WHITE+'Select another descriptor or use /exit to save.\n> ').lower().strip()
+                   
+            #TODO:Find a way to fix this ungodly mess. This shouldn't be necessary
+            if edit =="nts":
+                edit = "NTS"
 
-            outFile = descriptor
-            while True:
-                clear()
-                #print the NPC file.
-                for x in descriptor:
-                    print(f"{x.capitalize()}: {descriptor[x]}")
-                
-                #get user input
-                edit = input(f'What part of {name.capitalize()} would you like to edit?\n').lower().strip()
-
-                #nts is in all caps on the file so I have to do this for it to match with the sanitizing I did. I hate this.
-                if edit == "nts":
-                    edit = "NTS"
-                
-                #if the input is actually there, let them edit the file.
-                while edit in descriptor:
-                    clear()
-
-                    for x in descriptor:
-                        print(f"{x.capitalize()}: {descriptor[x]}")
-
-                    #Get the input for what they want the new description to be.
-                    description = input(f'New description for {edit}: ')
-                    #Temporary edit of the outFile with their change.
-                    outFile[edit] = description
-                    clear()
-                    for x in descriptor:
-                        print(f"{x.capitalize()}: {descriptor[x]}")
-                    #Make sure they're done before closing so that user doesn't have to come all the way back around to edit again.
-                    edit = input('Select another descriptor or use /exit to save. ').lower().strip()
-                    
-                    #Find a way to fix this ungodly mess. This shouldn't be necessary
-                    if edit =="nts":
-                        edit = "NTS"
-
-                    if edit == "/exit":
-                        #Save the data.
-                        dataPusher(npcFile, outFile)
-                        break
-                #If the input isn't there, make them retry.
-                else:
-                    input(f'{edit.capitalize()} is not one of the descriptors.')
-
-        elif name == "/menu":
+            if edit == "/exit":
+                #Save the data.
+                dataPusher(npcFile, outFile)
+                break
+            else:
+                continue
+        #If the input isn't there, make them retry.
+        if edit == "/exit":
             break
         else:
-            input(f'Could not find {name} in the NPC list, try again.')
+            input(f'{edit.capitalize()} is not one of the descriptors.')
+
+def findLoop():
+    while(True):
+        clear()
+        npcList()
+        print(Fore.WHITE + "To use these commands, type the selection followed by the name of the NPC you want. E.g. 1 Bobert Hobbert")
+        choice = input("1)View an NPC 2)Sort for tags 3)Edit an NPC\n>").lower().capitalize().strip().replace(" ","_")
+        if choice[1:2] == "_":
+            choice = choice[:1] + choice[2:] 
+        print(choice)
+        if choice[:1] == "1":
+            #Takes the choice and sends it to the viewNPC function. 
+            #TODO: Verify using Regex that the choice is an applicable name so that there are less options needed inside of viewNPC
+            viewNPC(choice[1:])
+            continue
+        elif choice[:1] == "2":
+            input("Sort ")
+        elif choice[:1] == "3":
+            editNPC(choice[1:])
+        elif choice == "/exit":
+            break
+        else:
+            print(choice)
+            input(f'"{choice.lower().replace("_"," ")}" is not a recognized command or name. Please try again. ')
+
 
 #Main loop that runs the program, once this ends the entire program ends.
-while mainLoop != "5":
+while(True):
     clear()
     #Main Menu text
     mainLoop = input("""What would you like to do?
 1) Create
-2) Sort
-3) View
-4) Edit
-5) Exit
-""")
+2) Find
+3) Exit
+>""")
     clear()
     if mainLoop == "1":
         #Basic idea finished
         initialize()
     elif mainLoop == "2":
-        #Can technically show you the current json files lmao.
-        npcSorter()
+        #Enter the find loop
+        findLoop()
     elif mainLoop == "3":
-        #Basically finished
-        viewNPC()
-    elif mainLoop == "4":
-        #Pretty much works!
-        editNPC()
-    elif mainLoop == "5":
+        #Break out of the main loop and end the program
         break
-    else:
-        print(f"I don't recognize {mainLoop} as an option. Try again.")
