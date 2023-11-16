@@ -40,7 +40,7 @@ def clear():
 #Find if the NPCs folder exists. If not, ask if they already have one. If not, create one.
 if "NPCs" not in os.listdir("./"):
     clear()
-    options = input(Fore.MAGENTA+"The \"NPCs\" folder can not be found."+Fore.WHITE+"\n1)I already have an NPCs folder from a different version.\n2)I've never used this tool before.\n>").strip()
+    options = input(Fore.MAGENTA+"The \"NPCs\" folder can not be found."+Fore.WHITE+"\n1)I already have an NPCs folder from a different version.\n2)This is a fresh install.\n>").strip()
     clear()
     if options == "1":
         input("Please move your NPCs folder into the same folder as Main.py. Make sure it is named \"NPCs\" exactly. Then start the program again.")
