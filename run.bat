@@ -1,3 +1,3 @@
 @echo off
-python C:\Main.py %*
+python .\Main.py %*
 exit

@@ -3,3 +3,6 @@ potentially be necessary. Such as when the party enters a specific city, church,
 
 
 I threw together a .bat file to run it in 5 minutes. It may or may not work, I haven't tested it.
+
+The script builds itself an "NPCs" folder if it can't find one. This lets me test my NPC stuff and work on this into the future without worrying about committing my NPCs folder or messing anyone else's up.
+The safest way to update this script is to just download the Main.py file and replace the old one. 
