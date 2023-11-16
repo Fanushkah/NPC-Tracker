@@ -1,4 +1,4 @@
-import os, json, shutil, pyperclip as pc
+import os, json, shutil
 from colorama import Fore, Back
 
 #TODO: Maybe retool the edit function to take an argument for an NPC name so that the user can go to the edit menus directly from the viewing menu
