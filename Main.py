@@ -8,13 +8,25 @@ from colorama import Fore, Back
 mainLoop = None
 templateNPC = "template.json"
 tempNPC = "tempNPC.json"
+defaultTemplate = {
+    "name": "",
+    "tags": "",
+    "age" : "",
+    "species": "",
+    "town": "",
+    "country":"",
+    "description": "",
+    "voice":"",
+    "quirks": "",
+    "wants": "",
+    "relationships": "",
+    "beliefs": "",
+    "NTS": ""
+}
+
 #If you come across anything you'd use that isn't part of this list, please send it to me to be added.
 affirmative = ["affirmative","yes","yea","ye","yup","y","ya","indeed","surely","uh-huh","sure","agreed","i guess","why not","yessir", "amen", "fine", "okay", "all right", "aye", "certainly", "definitely", "gladly", "indubitably"]
 negatory = ["no", "nope", "nah", "n","never","nuh-uh","nay","negatory","no way"]
-
-#Change the working directory so I don't have to deal with specifying that every single file I change in this is in /NPCs
-#The program is running in the main folder, but this makes it so every action from here on out is editing files in /NPCs by default
-os.chdir("./NPCs/")
 
 #Used to clear the terminal/command line without worrying about what OS I'm on.
 def clear():
@@ -22,6 +34,29 @@ def clear():
         os.system("cls")
     else:
         os.system('clear')
+
+
+#First time initialization if it can't find the NPCs folder. This is to make updating the script easier.
+#Find if the NPCs folder exists. If not, ask if they already have one. If not, create one.
+if "NPCs" not in os.listdir("./"):
+    clear()
+    options = input(Fore.MAGENTA+"The \"NPCs\" folder can not be found."+Fore.WHITE+"\n1)I already have an NPCs folder from a different version.\n2)I've never used this tool before.\n>").strip()
+    clear()
+    if options == "1":
+        input("Please move your NPCs folder into the same folder as Main.py. Make sure it is named \"NPCs\" exactly. Then start the program again.")
+        exit()
+    elif options == "2":
+        os.mkdir("NPCs")
+        with open("./NPCs/"+templateNPC,"w") as outfile:
+            outfile.write(json.dumps(defaultTemplate, indent=4))
+
+
+    
+
+
+#Change the working directory so I don't have to deal with specifying that every single file I change in this is in /NPCs
+#The program is running in the main folder, but this makes it so every action from here on out is editing files in /NPCs by default
+os.chdir("./NPCs/")
 
 #These next three are some special tools that we'll use later ;^)
 #Gives the option of pulling the data from an NPC, returning None, or returning a /menu call.
@@ -67,9 +102,6 @@ def npcDeleter(name):
             input(Fore.RED +f"{name.title()} has been spared.")
     else:
         input(f"{name.title()} could not be found in your NPCs.")
-
-
-
 
 
 
