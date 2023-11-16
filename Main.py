@@ -1,18 +1,19 @@
 import os, json, shutil, pyperclip as pc
 from colorama import Fore, Back
 
-#TODO: Replace the Y/N at the end of editing with a "Select another descriptor or use /exit to save."
-#TODO: Let the user /exit at any point in the editing process. 
 #TODO: Maybe retool the edit function to take an argument for an NPC name so that the user can go to the edit menus directly from the viewing menu
-#TODO: Definitely make editing available from the viewing menu at the very least.
 #TODO: Let the user copy NPC data to the clipboard using pyperclip so they can use it elsewhere.
 
 #Initialize some info for later.
 mainLoop = None
 templateNPC = "template.json"
 tempNPC = "tempNPC.json"
+#If you come across anything you'd use that isn't part of this list, please send it to me to be added.
+affirmative = ["affirmative","yes","yea","ye","yup","y","ya","indeed","surely","uh-huh","sure","agreed","i guess","why not","yessir", "amen", "fine", "okay", "all right", "aye", "certainly", "definitely", "gladly", "indubitably"]
+negatory = ["no", "nope", "nah", "n","never","nuh-uh","nay","negatory","no way"]
 
 #Change the working directory so I don't have to deal with specifying that every single file I change in this is in /NPCs
+#The program is running in the main folder, but this makes it so every action from here on out is editing files in /NPCs by default
 os.chdir("./NPCs/")
 
 #Used to clear the terminal/command line without worrying about what OS I'm on.
@@ -22,12 +23,13 @@ def clear():
     else:
         os.system('clear')
 
+#These next three are some special tools that we'll use later ;^)
 #Gives the option of pulling the data from an NPC, returning None, or returning a /menu call.
 def dataPuller(name):
     name = name.lower()
     if name != "/menu":
         if name[-5:] != ".json":
-            npcFile = f"{name.lower().strip().replace(' ','_')}.json"
+            npcFile = f"{name.strip().replace(' ','_')}.json"
         else:
             npcFile = name
         if npcFile in os.listdir("./"):
@@ -45,6 +47,31 @@ def dataPusher(npcFilePath, data):
     if npcFilePath in os.listdir("./"):
         with open(npcFilePath, 'w') as file:
             json.dump(data, file, indent=4)
+
+def npcDeleter(name):
+    clear()
+    npcFile = f"{name}.json"
+    if npcFile in os.listdir("./") and npcFile != "template.json":
+        data = dataPuller(name)
+        for x in data:
+            print(Fore.MAGENTA + f"{x.title()}: {data[x]}")
+        confirmation = input(Fore.WHITE + f"Are you sure you want to delete {name.title()}? There's no way to reverse this.\n>").lower()
+        if confirmation in affirmative:
+            os.remove(npcFile)
+            clear()
+            input(Fore.RED + f"{name.title()} has been permanently removed from existence.")
+        elif npcFile == "template.json":
+            input("No. You really don't want to do that.")
+        else:
+            clear()
+            input(Fore.RED +f"{name.title()} has been spared.")
+    else:
+        input(f"{name.title()} could not be found in your NPCs.")
+
+
+
+
+
 
 #function to go through every single option in a json file and save the responses so if I have to do it more than once I can just call it.
 def createNPC(name, file):
@@ -80,10 +107,10 @@ def createNPC(name, file):
         #print what has already been added.
         if done != {"name":name}:
             for x in done:
-                print(f'{x.capitalize()}: {done[x]}')
+                print(f'{x.title()}: {done[x]}')
 
         #Get user input for what the description is.
-        userDescription = input(f"{descriptor.capitalize()}: {descriptions[descriptor]}\n{descriptor.capitalize()}: ")
+        userDescription = input(f"{descriptor.title()}: {descriptions[descriptor]}\n{descriptor.capitalize()}: ")
         npcFile[descriptor] = userDescription
 
         #Update Done so its ready on the next pass.
@@ -93,7 +120,7 @@ def createNPC(name, file):
     clear()
     #print Done again.
     for x in done:
-        print (f"{x.capitalize()}: {done[x]}")
+        print (f"{x.title()}: {done[x]}")
 
     #Push all of the updates to the file using the dataPusher function
     dataPusher(file,done)
@@ -102,7 +129,7 @@ def createNPC(name, file):
 def npcList():
     for npc in os.listdir("./"):
         if npc != "template.json": 
-            print(Fore.MAGENTA + npc[:-5].capitalize().replace("_"," "))
+            print(Fore.MAGENTA + npc[:-5].replace("_"," ").title())
 
 #Initialize the file based off of template.json, get the name of the NPC
 def initialize():
@@ -145,7 +172,7 @@ def viewNPC(name):
         data = dataPuller(name)
         if data != None and data != "/menu":
             for x in data:
-                print(Fore.MAGENTA + f"{x.capitalize()}: {data[x]}")
+                print(Fore.MAGENTA + f"{x.title()}: {data[x]}")
             choice = input(Fore.WHITE +"Edit or Press any button to continue.\n>").lower().strip()
             if choice == "edit":
                 editNPC(name)
@@ -155,7 +182,7 @@ def viewNPC(name):
         elif name == "/menu":
             break
         else:
-            input(f'Could not find {name.capitalize()} in the NPC list, try again.')
+            input(f'Could not find {name.title()} in the NPC list, try again.')
             break
 
 def editNPC(name):    
@@ -168,10 +195,10 @@ def editNPC(name):
         clear()
         #print the NPC file.
         for x in descriptor:
-            print(Fore.MAGENTA + f"{x.capitalize()}: {descriptor[x]}")
+            print(Fore.MAGENTA + f"{x.title()}: {descriptor[x]}")
                 
         #get user input
-        edit = input(Fore.WHITE + f'What part of {name.replace("_"," ").capitalize()} would you like to edit?\n>').lower().strip()
+        edit = input(Fore.WHITE + f'What part of {name.replace("_"," ").title()} would you like to edit?\n>').lower().strip()
 
         #nts is in all caps on the file so I have to do this for it to match with the sanitizing I did. I hate this.
         if edit == "nts":
@@ -181,7 +208,7 @@ def editNPC(name):
         while edit in descriptor:
             clear()
             for x in descriptor:
-                print(Fore.MAGENTA + f"{x.capitalize()}: {descriptor[x]}")
+                print(Fore.MAGENTA + f"{x.title()}: {descriptor[x]}")
 
             #Get the input for what they want the new description to be.
             description = input(Fore.WHITE + f'New description for {edit}: ')
@@ -190,7 +217,7 @@ def editNPC(name):
             clear()
             #Print the NPC again with new changes
             for x in descriptor:
-                print(Fore.MAGENTA + f"{x.capitalize()}: {descriptor[x]}")
+                print(Fore.MAGENTA + f"{x.title()}: {descriptor[x]}")
             #Make sure they're done before closing so that user doesn't have to come all the way back around to edit again.
             edit = input(Fore.WHITE+'Select another descriptor or use /exit to save.\n> ').lower().strip()
                    
@@ -208,17 +235,18 @@ def editNPC(name):
         if edit == "/exit":
             break
         else:
-            input(f'{edit.capitalize()} is not one of the descriptors.')
+            input(f'{edit.title()} is not one of the descriptors.')
 
 def findLoop():
     while(True):
         clear()
         npcList()
         print(Fore.WHITE + "To use these commands, type the selection followed by the name of the NPC you want. E.g. 1 Bobert Hobbert")
-        choice = input("1)View an NPC 2)Sort for tags 3)Edit an NPC\n>").lower().capitalize().strip().replace(" ","_")
+        choice = input("1)View an NPC 2)Sort for tags 3)Edit an NPC 4)Delete an NPC\n>").capitalize().strip().replace(" ","_")
+        #Get rid of any spaces between text
         if choice[1:2] == "_":
             choice = choice[:1] + choice[2:] 
-        print(choice)
+        #Do the menu thing.
         if choice[:1] == "1":
             #Takes the choice and sends it to the viewNPC function. 
             #TODO: Verify using Regex that the choice is an applicable name so that there are less options needed inside of viewNPC
@@ -228,11 +256,13 @@ def findLoop():
             input("Sort ")
         elif choice[:1] == "3":
             editNPC(choice[1:])
+        elif choice[:1] == "4":
+            npcDeleter(choice[1:])
         elif choice == "/exit":
             break
         else:
-            print(choice)
             input(f'"{choice.lower().replace("_"," ")}" is not a recognized command or name. Please try again. ')
+
 
 
 #Main loop that runs the program, once this ends the entire program ends.
