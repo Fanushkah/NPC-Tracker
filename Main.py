@@ -27,7 +27,7 @@ defaultTemplate = {
 }
 
 #If you come across anything you'd use that isn't part of this list, please send it to me to be added.
-affirmative = ["affirmative","yes","yea","ye","yep,"yup","y","ya","indeed","surely","uh-huh","sure","agreed","i guess","why not","yessir", "amen", "fine", "okay", "all right", "aye", "certainly", "definitely", "gladly", "indubitably"]
+affirmative = ["affirmative","yes","yea","ye","yep","yup","y","ya","indeed","surely","uh-huh","sure","agreed","i guess","why not","yessir", "amen", "fine", "okay", "all right", "aye", "certainly", "definitely", "gladly", "indubitably"]
 negatory = ["no", "nope", "nah", "n","never","nuh-uh","nay","negatory","no way"]
 
 #Used to clear the terminal/command line without worrying about what OS I'm on.
