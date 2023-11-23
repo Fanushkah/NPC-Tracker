@@ -37,7 +37,6 @@ def clear():
     else:
         os.system('clear')
 
-
 #First time initialization if it can't find the NPCs folder. This is to make updating the script easier.
 #Find if the NPCs folder exists. If not, ask if they already have one. If not, create one.
 if "NPCs" not in os.listdir("./"):
@@ -51,10 +50,6 @@ if "NPCs" not in os.listdir("./"):
         os.mkdir("NPCs")
         with open("./NPCs/"+templateNPC,"w") as outfile:
             outfile.write(json.dumps(defaultTemplate, indent=4))
-
-
-    
-
 
 #Change the working directory so I don't have to deal with specifying that every single file I change in this is in /NPCs
 #The program is running in the main folder, but this makes it so every action from here on out is editing files in /NPCs by default
@@ -80,12 +75,15 @@ def dataPuller(name):
     else:
         return(name)
 
+#This takes the data from an input list and converts it to the specified json file.
+#Not complicated, but I got tired of typing these four lines and trying to remember what needed to go where specifically.
 def dataPusher(npcFilePath, data):
     if npcFilePath in os.listdir("./"):
         with open(npcFilePath, 'w') as file:
             json.dump(data, file, indent=4)
 
-def npcDeleter(name):
+#Does what it says on the tin. You want to holy smite your NPC from the world? This is the tool for you.
+def smiteNPC(name):
     clear()
     npcFile = f"{name}.json"
     if npcFile in os.listdir("./") and npcFile != "template.json":
@@ -104,8 +102,6 @@ def npcDeleter(name):
             input(Fore.RED +f"{name.title()} has been spared.")
     else:
         input(f"{name.title()} could not be found in your NPCs.")
-
-
 
 #function to go through every single option in a json file and save the responses so if I have to do it more than once I can just call it.
 def createNPC(name, file):
@@ -160,12 +156,13 @@ def createNPC(name, file):
     dataPusher(file,done)
     input(f"You've finished making {name}, they're beautiful. I pray for their souls that you don't have murderhobos.")
 
+#Prints all of the npcs in the NPCs folder and leaves out the template file so dumbasses don't touch it.
 def npcList():
     for npc in os.listdir("./"):
         if npc != "template.json": 
             print(Fore.MAGENTA + npc[:-5].replace("_"," ").title())
 
-#Initialize the file based off of template.json, get the name of the NPC
+#Initialize the file based off of template.json, get the name of the NPC. First portion of the Create command.
 def initialize():
     #Copy the template to a new file so I can overwrite it.
     shutil.copy(templateNPC, tempNPC)
@@ -197,9 +194,10 @@ def initialize():
                 os.rename(tempNPC, npcFile)
                 break
 
-    ##Initialize the rest of the data. Make this abstract as fuck so that it takes up less space. If you hard code this you can go fuck yourself.
+    #Initialize the rest of the data. 
     createNPC(npcName, npcFile)
 
+#Pulls the data for a given NPC. Gives you the option to edit if you want.
 def viewNPC(name):
     while True:
         clear()
@@ -271,6 +269,7 @@ def editNPC(name):
         else:
             input(f'{edit.title()} is not one of the descriptors.')
 
+#Arguably the main-er loop now. This is the hub from which you view, edit, and delete your NPCs.
 def findLoop():
     while(True):
         clear()
@@ -291,13 +290,11 @@ def findLoop():
         elif choice[:1] == "3":
             editNPC(choice[1:])
         elif choice[:1] == "4":
-            npcDeleter(choice[1:])
+            smiteNPC(choice[1:])
         elif choice == "/exit":
             break
         else:
             input(f'"{choice.lower().replace("_"," ")}" is not a recognized command or name. Please try again. ')
-
-
 
 #Main loop that runs the program, once this ends the entire program ends.
 while(True):
