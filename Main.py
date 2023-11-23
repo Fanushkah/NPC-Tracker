@@ -85,6 +85,7 @@ def dataPusher(npcFilePath, data):
 #Does what it says on the tin. You want to holy smite your NPC from the world? This is the tool for you.
 def smiteNPC(name):
     clear()
+    name = name.lower()
     npcFile = f"{name}.json"
     if npcFile in os.listdir("./") and npcFile != "template.json":
         data = dataPuller(name)
@@ -281,6 +282,10 @@ def findLoop():
             choice = choice[:1] + choice[2:] 
         #Do the menu thing.
         if choice[:1] == "1":
+            if len(choice) < 2:
+                clear()
+                npcList()
+                choice = choice + input(Fore.WHITE +"Which NPC would you like to view?\n>").capitalize().strip().replace(" ","_")
             #Takes the choice and sends it to the viewNPC function. 
             #TODO: Verify using Regex that the choice is an applicable name so that there are less options needed inside of viewNPC
             viewNPC(choice[1:])
@@ -288,8 +293,16 @@ def findLoop():
         elif choice[:1] == "2":
             input("Sort ")
         elif choice[:1] == "3":
+            if len(choice) < 2:
+                clear()
+                npcList()
+                choice = choice + input(Fore.WHITE +"Which NPC would you like to edit?\n>").capitalize().strip().replace(" ","_")
             editNPC(choice[1:])
         elif choice[:1] == "4":
+            if len(choice) < 2:
+                clear()
+                npcList()
+                choice = choice + input(Fore.WHITE +"Which NPC's life would you like to end today?\n>").capitalize().strip().replace(" ","_")
             smiteNPC(choice[1:])
         elif choice == "/exit":
             break
