@@ -4,7 +4,6 @@ from colorama import Fore, Back
 #TODO: Maybe retool the edit function to take an argument for an NPC name so that the user can go to the edit menus directly from the viewing menu
 #TODO: Let the user copy NPC data to the clipboard using pyperclip so they can use it elsewhere.
 #TODO: Fix the formatting for making a character
-#TODO: Pressing the number should take you to options on the view menu
 
 #Initialize some info for later.
 mainLoop = None
